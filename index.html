@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文字显示工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            flex: 1;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .description {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+        
+        .control-panel {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .display-panel {
+            flex: 2;
+            min-width: 300px;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        input[type="text"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+            font-family: inherit;
+        }
+        
+        .color-picker {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .color-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            border: 2px solid transparent;
+        }
+        
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+        
+        .color-option.active {
+            border-color: #333;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            margin: 10px 0;
+        }
+        
+        .range-value {
+            text-align: center;
+            font-weight: bold;
+            color: #3498db;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-secondary {
+            background-color: #95a5a6;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+        }
+        
+        .btn-success {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+        
+        .btn-danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .display-text {
+            width: 100%;
+            text-align: center;
+            transition: all 0.3s;
+            word-break: break-word;
+        }
+        
+        .style-preview {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border-left: 4px solid #3498db;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            border-top: 1px solid #ddd;
+            color: #666;
+        }
+        
+        .save-load-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .presets {
+            margin-top: 20px;
+        }
+        
+        .preset-button {
+            margin: 5px;
+            padding: 8px 12px;
+            background: #ecf0f1;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .preset-button:hover {
+            background: #d5dbdb;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📝 自定义文字显示工具</h1>
+            <p class="description">输入文字，自定义样式，实时预览效果</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="control-panel">
+                <div class="form-group">
+                    <label for="textContent">文字内容：</label>
+                    <textarea id="textContent" placeholder="local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+local uiEvent = ReplicatedStorage:WaitForChild("UINotify")
+local sprintEvent = ReplicatedStorage:WaitForChild("SprintEvent")
+
+local blackScreenGui = playerGui:WaitForChild("BlackScreen")
+local blackMainFrame = blackScreenGui:WaitForChild("MainFrame")
+
+local focusScreenGui = playerGui:WaitForChild("FocusScreen")
+local focusTop = focusScreenGui:WaitForChild("Top")
+local focusDown = focusScreenGui:WaitForChild("Down")
+
+local textScreenGui = playerGui:WaitForChild("TextScreen")
+local textMainFrame = textScreenGui:WaitForChild("MainFrame")
+local textLabel = textMainFrame:WaitForChild("Text")
+
+local chatScreen = playerGui:WaitForChild("ChatScreen")
+local chatMainFrame = chatScreen:WaitForChild("MainFrame")
+local chatText = chatMainFrame:WaitForChild("TextHere")
+local charNameLabel = chatMainFrame:WaitForChild("CharacterName")
+local charViewport = chatMainFrame:WaitForChild("CharacterViewport")
+
+local hungerGui = playerGui:WaitForChild("Hunger")
+local hungerBack = hungerGui:WaitForChild("MainFrame"):WaitForChild("Back")
+local hungerCanvas = hungerBack:WaitForChild("HungerCanvas")
+local hungerBar = hungerCanvas:WaitForChild("Bar")
+local thirstCanvas = hungerBack:WaitForChild("ThirstyCanvas")
+local thirstBar = thirstCanvas:WaitForChild("Bar")
+
+local staminaGui = playerGui:WaitForChild("Stamina")
+local staminaBack = staminaGui:WaitForChild("MainFrame"):WaitForChild("Back")
+local staminaCanvas = staminaBack:WaitForChild("StaminaCanvas")
+local staminaBar = staminaCanvas:WaitForChild("Bar")
+
+
+local typewriterToken = 0
+local textHideToken = 0
+local chatToken = 0
+local sprinting = false
+
+local MAX_BAR_WIDTH = 0.92962
+
+local meterGui = playerGui:WaitForChild("MeterScreen")
+local meterLabel = meterGui:WaitForChild("MainFrame"):WaitForChild("Stamina")
+
+local function getMeters()
+	local char = player.Character
+	local hrp = char and char:FindFirstChild("HumanoidRootPart")
+	if not hrp then return 0 end
+	local startZ = player:GetAttribute("StartZ")
+	if not startZ then
+		player:SetAttribute("StartZ", hrp.Position.Z)
+		startZ = hrp.Position.Z
+	end
+	return math.max(0, math.floor((startZ - hrp.Position.Z) + 0.5))
+end
+
+local function formatMeters(m)
+	m = math.clamp(m or 0, 0, 9999)
+	return string.format("Meters: %04d", m)
+end
+
+local function createSpring(damping, speed)
+	return {
+		value = 1,
+		velocity = 0,
+		damping = damping or 15,
+		speed = speed or 60,
+		update = function(self, dt, target)
+			local delta = target - self.value
+			local acceleration = delta * self.speed - self.velocity * self.damping
+			self.velocity = self.velocity + acceleration * dt
+			self.value = self.value + self.velocity * dt
+			return self.value
+		end
+	}
+end
+
+local hungerSpring = createSpring(18, 70)
+local thirstSpring = createSpring(18, 70)
+local staminaSpring = createSpring(22, 85)
+
+local target = {hunger = 1, thirst = 1, stamina = 1}
+
+local function setTargets(h, t, s)
+	if h ~= nil then target.hunger = math.clamp(h, 0, 1) end
+	if t ~= nil then target.thirst = math.clamp(t, 0, 1) end
+	if s ~= nil then target.stamina = math.clamp(s, 0, 1) end
+end
+
+local function updateBars(dt)
+	local h = hungerSpring:update(dt, target.hunger)
+	local th = thirstSpring:update(dt, target.thirst)
+	local st = staminaSpring:update(dt, target.stamina)
+
+	hungerBar.Size = UDim2.new(math.clamp(h, 0, 1) * MAX_BAR_WIDTH, 0, hungerBar.Size.Y.Scale, 0)
+	thirstBar.Size = UDim2.new(math.clamp(th, 0, 1) * MAX_BAR_WIDTH, 0, thirstBar.Size.Y.Scale, 0)
+	staminaBar.Size = UDim2.new(math.clamp(st, 0, 1) * MAX_BAR_WIDTH, 0, staminaBar.Size.Y.Scale, 0)
+
+	if h <= 0 then
+		hungerBar.BackgroundColor3 = Color3.fromRGB(180, 60, 60)
+	elseif h <= 0.2 then
+		hungerBar.BackgroundColor3 = Color3.fromRGB(255, 160, 100)
+	else
+		hungerBar.BackgroundColor3 = Color3.fromRGB(255, 237, 191)
+	end
+
+	if th <= 0 then
+		thirstBar.BackgroundColor3 = Color3.fromRGB(180, 60, 60)
+	elseif th <= 0.2 then
+		thirstBar.BackgroundColor3 = Color3.fromRGB(130, 180, 255)
+	else
+		thirstBar.BackgroundColor3 = Color3.fromRGB(156, 224, 255)
+	end
+end
+
+RunService.RenderStepped:Connect(function(dt)
+	updateBars(dt)
+	meterLabel.Text = formatMeters(getMeters())
+end)
+
+local function resetAllBars()
+	setTargets(1, 1, 1)
+	hungerSpring.value, thirstSpring.value, staminaSpring.value = 1, 1, 1
+	hungerSpring.velocity, thirstSpring.velocity, staminaSpring.velocity = 0, 0, 0
+end
+
+local function blackscreenShow()
+	blackMainFrame.BackgroundTransparency = 0
+	blackScreenGui.Enabled = true
+end
+
+local function blackscreenHide()
+	blackScreenGui.Enabled = false
+end
+
+local function blackscreenFadeIn(duration)
+	blackMainFrame.BackgroundTransparency = 1
+	blackScreenGui.Enabled = true
+	TweenService:Create(blackMainFrame, TweenInfo.new(duration or 1), {BackgroundTransparency = 0}):Play()
+end
+
+local function blackscreenFadeOut(duration)
+	blackMainFrame.BackgroundTransparency = 0
+	blackScreenGui.Enabled = true
+	local t = TweenService:Create(blackMainFrame, TweenInfo.new(duration or 1), {BackgroundTransparency = 1})
+	t:Play()
+	t.Completed:Connect(function()
+		blackScreenGui.Enabled = false
+	end)
+end
+
+local FOCUS_TOP_HIDDEN = UDim2.new(0.5, 0, -0.1, 0)
+local FOCUS_TOP_SHOWN = UDim2.new(0.5, 0, 0.0871, 0)
+local FOCUS_DOWN_HIDDEN = UDim2.new(0.5, 0, 1.1, 0)
+local FOCUS_DOWN_SHOWN = UDim2.new(0.5, 0, 0.92421, 0)
+
+local function focusShow()
+	focusTop.Position = FOCUS_TOP_SHOWN
+	focusDown.Position = FOCUS_DOWN_SHOWN
+	focusScreenGui.Enabled = true
+end
+
+local function focusHide()
+	focusScreenGui.Enabled = false
+end
+
+local function focusAnimateIn(duration)
+	duration = duration or 0.6
+	focusTop.Position = FOCUS_TOP_HIDDEN
+	focusDown.Position = FOCUS_DOWN_HIDDEN
+	focusScreenGui.Enabled = true
+	TweenService:Create(focusTop, TweenInfo.new(duration, Enum.EasingStyle.Quart), {Position = FOCUS_TOP_SHOWN}):Play()
+	TweenService:Create(focusDown, TweenInfo.new(duration, Enum.EasingStyle.Quart), {Position = FOCUS_DOWN_SHOWN}):Play()
+end
+
+local function focusAnimateOut(duration)
+	duration = duration or 0.6
+	local t1 = TweenService:Create(focusTop, TweenInfo.new(duration, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {Position = FOCUS_TOP_HIDDEN})
+	local t2 = TweenService:Create(focusDown, TweenInfo.new(duration, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {Position = FOCUS_DOWN_HIDDEN})
+	t1:Play()
+	t2:Play()
+	t1.Completed:Connect(function()
+		focusScreenGui.Enabled = false
+	end)
+end
+
+local function textHide()
+	typewriterToken += 1
+	textHideToken += 1
+	local my = textHideToken
+	local t = TweenService:Create(textLabel, TweenInfo.new(0.3), {TextTransparency = 1, TextStrokeTransparency = 1})
+	t:Play()
+	t.Completed:Connect(function()
+		if textHideToken ~= my then return end
+		textScreenGui.Enabled = false
+		textLabel.Text = ""
+	end)
+end
+
+local function textSet(text, duration)
+	typewriterToken += 1
+	textHideToken += 1
+	textLabel.Text = text or ""
+	textLabel.TextTransparency = 0
+	textLabel.TextStrokeTransparency = 0.9
+	textScreenGui.Enabled = true
+	if duration and duration > 0 then
+		local my = textHideToken
+		task.delay(duration, function()
+			if textHideToken ~= my then return end
+			textHide()
+		end)
+	end
+end
+
+local function utf8Len(s)
+	local ok, n = pcall(function() return utf8.len(s) end)
+	if ok and n then return n end
+	local c, i = 0, 1
+	while i <= #s do
+		local b = s:byte(i)
+		if b >= 240 then i += 4
+		elseif b >= 224 then i += 3
+		elseif b >= 192 then i += 2
+		else i += 1 end
+		c += 1
+	end
+	return c
+end
+
+local function utf8Sub(s, n)
+	local ok, sub = pcall(function() return utf8.sub(s, 1, n) end)
+	if ok and sub then return sub end
+	local out, count, i = {}, 0, 1
+	while i <= #s and count < n do
+		local b = s:byte(i)
+		local bytes = (b >= 240 and 4) or (b >= 224 and 3) or (b >= 192 and 2) or 1
+		out[#out+1] = s:sub(i, i + bytes - 1)
+		i += bytes
+		count += 1
+	end
+	return table.concat(out)
+end
+
+local function textTypewriter(text, charDelay, duration)
+	text = text or ""
+	charDelay = charDelay or 0.04
+	typewriterToken += 1
+	textHideToken += 1
+	local myTok = typewriterToken
+	textLabel.Text = ""
+	textLabel.TextTransparency = 0
+	textLabel.TextStrokeTransparency = 0.9
+	textScreenGui.Enabled = true
+	task.spawn(function()
+		local total = utf8Len(text)
+		for i = 1, total do
+			if typewriterToken ~= myTok then return end
+			textLabel.Text = utf8Sub(text, i)
+			task.wait(charDelay)
+		end
+		if duration and duration > 0 then
+			local my = textHideToken
+			task.delay(duration, function()
+				if textHideToken ~= my then return end
+				textHide()
+			end)
+		end
+	end)
+end
+
+local function chatTypewriter(text, label, charDelay, myTok)
+	local total = utf8Len(text)
+	for i = 1, total do
+		if chatToken ~= myTok then return end
+		label.Text = utf8Sub(text, i)
+		task.wait(charDelay or 0.03)
+	end
+end
+
+local function setupCharacterViewport(model)
+	if not model or not model:IsA("Model") then return end
+	for _, child in ipairs(charViewport:GetChildren()) do
+		child:Destroy()
+	end
+	local clone = model:Clone()
+	for _, part in ipairs(clone:GetDescendants()) do
+		if part:IsA("BasePart") then
+			part.LocalTransparencyModifier = 0
+		end
+	end
+	clone.PrimaryPart = clone:FindFirstChild("HumanoidRootPart") or clone:FindFirstChildWhichIsA("BasePart")
+	if clone.PrimaryPart then
+		clone:PivotTo(CFrame.new(0, 0, 0))
+		clone.Parent = charViewport
+		local cam = Instance.new("Camera")
+		cam.CFrame = CFrame.new(0, 3, 8) * CFrame.Angles(0, math.pi, 0)
+		cam.FieldOfView = 30
+		charViewport.CurrentCamera = cam
+		cam.Parent = charViewport
+	end
+end
+
+local function chatSet(characterName, text, model, duration)
+	chatToken += 1
+	local myTok = chatToken
+
+	charNameLabel.Text = characterName or "Unknown"
+	chatText.Text = ""
+	chatText.TextTransparency = 0
+	chatText.TextStrokeTransparency = 0.9
+	charNameLabel.TextTransparency = 0
+	charNameLabel.TextStrokeTransparency = 0.9
+
+	if model then
+		setupCharacterViewport(model)
+		charViewport.Visible = true
+	else
+		charViewport.Visible = false
+	end
+
+	local originalPos = chatMainFrame.Position
+	chatMainFrame.Position = UDim2.new(originalPos.X.Scale, originalPos.X.Offset, 2, 0)
+	chatScreen.Enabled = true
+
+	local slideIn = TweenService:Create(chatMainFrame, TweenInfo.new(0.55, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+		Position = originalPos
+	})
+	slideIn:Play()
+
+	task.spawn(function()
+		chatTypewriter(text or "", chatText, 0.03, myTok)
+		if chatToken ~= myTok then return end
+		if duration and duration > 0 then
+			task.wait(duration)
+			if chatToken ~= myTok then return end
+
+			local slideOut = TweenService:Create(chatMainFrame, TweenInfo.new(0.55, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
+				Position = UDim2.new(originalPos.X.Scale, originalPos.X.Offset, 2, 0)
+			})
+			slideOut:Play()
+
+			slideOut.Completed:Wait()
+			if chatToken ~= myTok then return end
+
+			chatScreen.Enabled = false
+			chatMainFrame.Position = originalPos
+			chatText.Text = ""
+			charNameLabel.Text = ""
+		end
+	end)
+end
+
+local function chatHide()
+	chatToken += 1
+
+	local originalPos = chatMainFrame.Position
+	local slideOut = TweenService:Create(chatMainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
+		Position = UDim2.new(originalPos.X.Scale, originalPos.X.Offset, 2, 0)
+	})
+	slideOut:Play()
+
+	slideOut.Completed:Wait()
+
+	chatScreen.Enabled = false
+	chatMainFrame.Position = originalPos
+	chatText.Text = ""
+	charNameLabel.Text = ""
+
+	for _, child in ipairs(charViewport:GetChildren()) do
+		child:Destroy()
+	end
+end
+
+local function staminaFlash()
+	local original = staminaBar.BackgroundColor3
+	local flashTween = TweenService:Create(staminaBar, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(255, 70, 70)})
+	flashTween:Play()
+	flashTween.Completed:Connect(function()
+		TweenService:Create(staminaBar, TweenInfo.new(0.2), {BackgroundColor3 = original}):Play()
+	end)
+end
+
+local actionHandlers = {
+	blackscreen_show = function() blackscreenShow() end,
+	blackscreen_hide = function() blackscreenHide() end,
+	blackscreen_fade_in = function(data) blackscreenFadeIn(data and data.duration) end,
+	blackscreen_fade_out = function(data) blackscreenFadeOut(data and data.duration) end,
+	focus_show = function() focusShow() end,
+	focus_hide = function() focusHide() end,
+	focus_animate_in = function(data) focusAnimateIn(data and data.duration) end,
+	focus_animate_out = function(data) focusAnimateOut(data and data.duration) end,
+	text_show = function() textScreenGui.Enabled = true end,
+	text_hide = function() textHide() end,
+	text_set = function(data) textSet(data and data.text, data and data.duration) end,
+	text_typewriter = function(data) textTypewriter(data and data.text, data and data.charDelay, data and data.duration) end,
+	hunger_set = function(data) setTargets(data and data.fraction, nil, nil) end,
+	thirst_set = function(data) setTargets(nil, data and data.fraction, nil) end,
+	stamina_set = function(data) setTargets(nil, nil, data and data.fraction) end,
+	stamina_flash = function() staminaFlash() end,
+	chat_show = function() chatScreen.Enabled = true end,
+	chat_hide = function() chatHide() end,
+	chat_set = function(data) chatSet(data.characterName, data.text, data.model, data.duration) end,
+}
+
+uiEvent.OnClientEvent:Connect(function(action, data)
+	local handler = actionHandlers[action]
+	if handler then handler(data) end
+end)
+
+player.CharacterAdded:Connect(function()
+	task.wait(0.1)
+	resetAllBars()
+	textHide()
+	chatHide()
+	meterLabel.Text = formatMeters(0)
+end)
+
+resetAllBars()
+
+local sprintSeq = 0
+local function setSprint(state)
+	if sprinting == state then return end
+	sprinting = state
+	sprintSeq += 1
+	local my = sprintSeq
+	task.defer(function()
+		if sprintSeq ~= my then return end
+		sprintEvent:FireServer(state)
+	end)
+end
+
+UserInputService.InputBegan:Connect(function(input, processed)
+	if processed then return end
+	if input.KeyCode == Enum.KeyCode.LeftShift or input.KeyCode == Enum.KeyCode.RightShift then
+		setSprint(true)
+	end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+	if input.KeyCode == Enum.KeyCode.LeftShift or input.KeyCode == Enum.KeyCode.RightShift then
+		setSprint(false)
+	end
+end)
+
+local function bindSprintButton(btn)
+	if not btn or not btn:IsA("GuiButton") then return end
+
+	btn.Active = true
+	btn.AutoButtonColor = true
+
+	local down = false
+
+	local function setDown(v)
+		if down == v then return end
+		down = v
+		setSprint(v)
+	end
+
+	btn.MouseButton1Down:Connect(function()
+		setDown(true)
+	end)
+
+	btn.MouseButton1Up:Connect(function()
+		setDown(false)
+	end)
+
+	btn.MouseLeave:Connect(function()
+		setDown(false)
+	end)
+
+	btn.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.Touch then
+			setDown(true)
+		end
+	end)
+
+	btn.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.Touch then
+			setDown(false)
+		end
+	end)
+end
+
+task.defer(function()
+	local pg = player:WaitForChild("PlayerGui")
+	local MobileGUI = pg:WaitForChild("MobileGUI", 10)
+	if not MobileGUI then return end
+	local sprintButton = MobileGUI:WaitForChild("SprintButton", 10)
+	if not sprintButton then return end
+	bindSprintButton(sprintButton)
+end)">欢迎使用文字显示工具！</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="fontSize">字体大小：</label>
+                    <input type="range" id="fontSize" min="12" max="100" value="24">
+                    <div class="range-value" id="fontSizeValue">24px</div>
+                </div>
+                
+                <div class="form-group">
+                    <label>文字颜色：</label>
+                    <div class="color-picker">
+                        <div class="color-option active" style="background-color: #333;" data-color="#333" title="黑色"></div>
+                        <div class="color-option" style="background-color: #e74c3c;" data-color="#e74c3c" title="红色"></div>
+                        <div class="color-option" style="background-color: #3498db;" data-color="#3498db" title="蓝色"></div>
+                        <div class="color-option" style="background-color: #2ecc71;" data-color="#2ecc71" title="绿色"></div>
+                        <div class="color-option" style="background-color: #9b59b6;" data-color="#9b59b6" title="紫色"></div>
+                        <div class="color-option" style="background-color: #e67e22;" data-color="#e67e22" title="橙色"></div>
+                        <div class="color-option" style="background-color: #1abc9c;" data-color="#1abc9c" title="青色"></div>
+                        <div class="color-option" style="background-color: #34495e;" data-color="#34495e" title="深蓝"></div>
+                    </div>
+                    <input type="text" id="customColor" placeholder="#000000" value="#333333" style="margin-top: 10px;">
+                </div>
+                
+                <div class="form-group">
+                    <label for="fontFamily">字体：</label>
+                    <select id="fontFamily">
+                        <option value="'Microsoft YaHei', sans-serif">微软雅黑</option>
+                        <option value="'SimSun', serif">宋体</option>
+                        <option value="'SimHei', sans-serif">黑体</option>
+                        <option value="'KaiTi', serif">楷体</option>
+                        <option value="Arial, sans-serif">Arial</option>
+                        <option value="'Times New Roman', serif">Times New Roman</option>
+                        <option value="'Courier New', monospace">Courier New</option>
+                        <option value="Georgia, serif">Georgia</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="textAlign">对齐方式：</label>
+                    <select id="textAlign">
+                        <option value="left">左对齐</option>
+                        <option value="center" selected>居中</option>
+                        <option value="right">右对齐</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="fontWeight">字重：</label>
+                    <select id="fontWeight">
+                        <option value="normal">正常</option>
+                        <option value="bold">加粗</option>
+                        <option value="300">细体</option>
+                        <option value="500">中等</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="lineHeight">行高：</label>
+                    <input type="range" id="lineHeight" min="1" max="3" step="0.1" value="1.5">
+                    <div class="range-value" id="lineHeightValue">1.5</div>
+                </div>
+                
+                <div class="style-preview">
+                    <h4>当前样式：</h4>
+                    <div id="currentStyle">字号: 24px | 颜色: #333 | 字体: 微软雅黑</div>
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn-primary" onclick="updateDisplay()">更新显示</button>
+                    <button class="btn-secondary" onclick="resetStyles()">重置样式</button>
+                    <button class="btn-success" onclick="savePreset()">保存预设</button>
+                </div>
+                
+                <div class="save-load-section">
+                    <h4>预设样式：</h4>
+                    <div class="presets" id="presetsContainer">
+                        <button class="preset-button" onclick="loadPreset('default')">默认样式</button>
+                        <button class="preset-button" onclick="loadPreset('title')">标题样式</button>
+                        <button class="preset-button" onclick="loadPreset('poem')">诗词样式</button>
+                    </div>
+                    
+                    <h4 style="margin-top: 20px;">导出/导入：</h4>
+                    <button class="btn-secondary" onclick="exportStyles()">导出设置</button>
+                    <button class="btn-secondary" onclick="importStyles()">导入设置</button>
+                </div>
+            </div>
+            
+            <div class="display-panel">
+                <div class="display-text" id="displayText">
+                    欢迎使用文字显示工具！
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>自定义文字显示工具 &copy; 2024 | 实时预览，简单易用</p>
+    </footer>
+    
+    <script>
+        const displayText = document.getElementById('displayText');
+        const textContent = document.getElementById('textContent');
+        const fontSize = document.getElementById('fontSize');
+        const fontSizeValue = document.getElementById('fontSizeValue');
+        const fontFamily = document.getElementById('fontFamily');
+        const textAlign = document.getElementById('textAlign');
+        const fontWeight = document.getElementById('fontWeight');
+        const lineHeight = document.getElementById('lineHeight');
+        const lineHeightValue = document.getElementById('lineHeightValue');
+        const customColor = document.getElementById('customColor');
+        const currentStyle = document.getElementById('currentStyle');
+        
+        const presets = {
+            default: {
+                fontSize: 24,
+                color: '#333',
+                fontFamily: "'Microsoft YaHei', sans-serif",
+                textAlign: 'center',
+                fontWeight: 'normal',
+                lineHeight: 1.5
+            },
+            title: {
+                fontSize: 48,
+                color: '#2c3e50',
+                fontFamily: "'SimHei', sans-serif",
+                textAlign: 'center',
+                fontWeight: 'bold',
+                lineHeight: 1.2
+            },
+            poem: {
+                fontSize: 20,
+                color: '#34495e',
+                fontFamily: "'KaiTi', serif",
+                textAlign: 'center',
+                fontWeight: 'normal',
+                lineHeight: 2
+            }
+        };
+        
+        function updateDisplay() {
+            const text = textContent.value || '请输入文字...';
+            const size = fontSize.value;
+            const color = customColor.value;
+            const font = fontFamily.value;
+            const align = textAlign.value;
+            const weight = fontWeight.value;
+            const lineH = lineHeight.value;
+            
+            displayText.textContent = text;
+            displayText.style.fontSize = size + 'px';
+            displayText.style.color = color;
+            displayText.style.fontFamily = font;
+            displayText.style.textAlign = align;
+            displayText.style.fontWeight = weight;
+            displayText.style.lineHeight = lineH;
+            
+            fontSizeValue.textContent = size + 'px';
+            lineHeightValue.textContent = lineH;
+            
+            updateStylePreview(size, color, font, align, weight, lineH);
+        }
+        
+        function updateStylePreview(size, color, font, align, weight, lineH) {
+            const fontName = fontFamily.options[fontFamily.selectedIndex].text;
+            currentStyle.textContent = 
+                `字号: ${size}px | 颜色: ${color} | 字体: ${fontName} | 对齐: ${align} | 字重: ${weight} | 行高: ${lineH}`;
+        }
+        
+        function resetStyles() {
+            fontSize.value = 24;
+            customColor.value = '#333333';
+            fontFamily.value = "'Microsoft YaHei', sans-serif";
+            textAlign.value = 'center';
+            fontWeight.value = 'normal';
+            lineHeight.value = 1.5;
+            textContent.value = '欢迎使用文字显示工具！';
+            
+            updateColorOptions('#333');
+            updateDisplay();
+        }
+        
+        function savePreset() {
+            const name = prompt('请输入预设名称：');
+            if (!name) return;
+            
+            presets[name] = {
+                fontSize: parseInt(fontSize.value),
+                color: customColor.value,
+                fontFamily: fontFamily.value,
+                textAlign: textAlign.value,
+                fontWeight: fontWeight.value,
+                lineHeight: parseFloat(lineHeight.value)
+            };
+            
+            const presetButton = document.createElement('button');
+            presetButton.className = 'preset-button';
+            presetButton.textContent = name;
+            presetButton.onclick = () => loadPreset(name);
+            
+            document.getElementById('presetsContainer').appendChild(presetButton);
+            alert(`预设 "${name}" 保存成功！`);
+        }
+        
+        function loadPreset(presetName) {
+            if (!presets[presetName]) {
+                alert('预设不存在！');
+                return;
+            }
+            
+            const preset = presets[presetName];
+            fontSize.value = preset.fontSize;
+            customColor.value = preset.color;
+            fontFamily.value = preset.fontFamily;
+            textAlign.value = preset.textAlign;
+            fontWeight.value = preset.fontWeight;
+            lineHeight.value = preset.lineHeight;
+            
+            updateColorOptions(preset.color);
+            updateDisplay();
+        }
+        
+        function exportStyles() {
+            const styles = {
+                text: textContent.value,
+                fontSize: fontSize.value,
+                color: customColor.value,
+                fontFamily: fontFamily.value,
+                textAlign: textAlign.value,
+                fontWeight: fontWeight.value,
+                lineHeight: lineHeight.value
+            };
+            
+            const dataStr = JSON.stringify(styles, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = 'text-display-settings.json';
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+        }
+        
+        function importStyles() {
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = '.json';
+            
+            fileInput.onchange = function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    try {
+                        const styles = JSON.parse(event.target.result);
+                        
+                        if (styles.text) textContent.value = styles.text;
+                        if (styles.fontSize) fontSize.value = styles.fontSize;
+                        if (styles.color) customColor.value = styles.color;
+                        if (styles.fontFamily) fontFamily.value = styles.fontFamily;
+                        if (styles.textAlign) textAlign.value = styles.textAlign;
+                        if (styles.fontWeight) fontWeight.value = styles.fontWeight;
+                        if (styles.lineHeight) lineHeight.value = styles.lineHeight;
+                        
+                        updateColorOptions(styles.color || '#333');
+                        updateDisplay();
+                        alert('设置导入成功！');
+                    } catch (error) {
+                        alert('导入失败：文件格式不正确');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            
+            fileInput.click();
+        }
+        
+        function updateColorOptions(color) {
+            const colorOptions = document.querySelectorAll('.color-option');
+            colorOptions.forEach(option => {
+                option.classList.remove('active');
+                if (option.dataset.color === color) {
+                    option.classList.add('active');
+                }
+            });
+        }
+        
+        document.querySelectorAll('.color-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const color = this.dataset.color;
+                customColor.value = color;
+                updateColorOptions(color);
+                updateDisplay();
+            });
+        });
+        
+        customColor.addEventListener('input', function() {
+            updateColorOptions(this.value);
+            updateDisplay();
+        });
+        
+        fontSize.addEventListener('input', updateDisplay);
+        fontFamily.addEventListener('change', updateDisplay);
+        textAlign.addEventListener('change', updateDisplay);
+        fontWeight.addEventListener('change', updateDisplay);
+        lineHeight.addEventListener('input', updateDisplay);
+        
+        window.addEventListener('DOMContentLoaded', function() {
+            updateDisplay();
+        });
+        
+        textContent.addEventListener('input', updateDisplay);
+        
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                updateDisplay();
+            }
+        });
+    </script>
+</body>
+</html>
